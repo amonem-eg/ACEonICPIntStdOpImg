@@ -20,7 +20,7 @@ ENV PATH_TO_MQ_IMAGE=/home/fabric/Downloads
 
 # Install ACE V11 Developer Edition
 RUN apt update && apt -y install --no-install-recommends curl rsyslog sudo \
-  && curl $PATH_TO_MQ_IMAGE/11.0.0.3-ACE-LINUX64-DEVELOPER.tar.gz \
+  && $PATH_TO_MQ_IMAGE/11.0.0.3-ACE-LINUX64-DEVELOPER.tar.gz \
    | tar xz --exclude ace-11.0.0.3/tools --directory /opt/ibm/ \
   && /opt/ibm/ace-11.0.0.3/ace make registry global accept license silently \
   && apt remove -y curl \
