@@ -12,23 +12,32 @@ LABEL "maintainer"="AbdelMoneim Azzaz <aazzaz@sbm.com.sa>" \
       "product.name"="IBM App Connect Enterprise" \
       "product.version"="11.0.0.3"
 
+ARG ACE_INSTALL=11.0.0.3-ACE-LINUX64-DEVELOPER.tar.gz
+ARG MQ_INSTALL=mqadv_dev910_ubuntu_x86-64.tar.gz
+
+WORKDIR /
+
+COPY $ACE_INSTALL .
+COPY $MQ_INSTALL .
+
+RUN tar xzf $ACE_INSTALL --exclude ace-11.\*/tools --directory /opt/ibm/
+RUN tar xzf $MQ_INSTALL --directory /tmp/mq
+
 WORKDIR /opt/ibm
 
 # ***** Set your path to installation images
-ENV PATH_TO_MQ_IMAGE=/home/fabric/Downloads
+# ENV PATH_TO_MQ_IMAGE=/home/fabric/Downloads
 
 
 # Install ACE V11 Developer Edition
 RUN apt update && apt -y install --no-install-recommends curl rsyslog sudo \
-  && $PATH_TO_MQ_IMAGE/11.0.0.3-ACE-LINUX64-DEVELOPER.tar.gz \
-   | tar xz --exclude ace-11.0.0.3/tools --directory /opt/ibm/ \
   && /opt/ibm/ace-11.0.0.3/ace make registry global accept license silently \
   && apt remove -y curl \
   && rm -rf /var/lib/apt/lists/*
 
 # Install the MQ Client
 
-ARG MQ_URL=$PATH_TO_MQ_IMAGE/mqadv_dev910_ubuntu_x86-64.tar.gz
+
 ARG MQ_PACKAGES="ibmmq-runtime ibmmq-client ibmmq-java ibmmq-jre"
 
 
@@ -59,10 +68,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     apt-utils \
   # Download and extract the MQ installation files
   && export DIR_EXTRACT=/tmp/mq \
-  && mkdir -p ${DIR_EXTRACT} \
   && cd ${DIR_EXTRACT} \
-  && curl -LO $MQ_URL \
-  && tar -zxvf ./*.tar.gz \
   # Recommended: Remove packages only needed by this script
   && apt-get purge -y \
     ca-certificates \
